@@ -4,6 +4,12 @@ using UnityEngine;
 
 public class MouseMovement : MonoBehaviour
 {
+    void Start()
+    {
+        // Hide the cursor GameObject
+        Cursor.visible = false;
+    }
+
     void Update()
     {
         // Get the position of the mouse pointer in screen coordinates

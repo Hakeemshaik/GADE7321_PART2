@@ -8,6 +8,7 @@ TagManager:
   - Player2
   - Ingrediant
   - Ingredient
+  - ButtonCollider
   layers:
   - Default
   - TransparentFX
@@ -50,4 +51,19 @@ TagManager:
     locked: 0
   - name: 2
     uniqueID: 716385199
+    locked: 0
+  - name: New Layer 3
+    uniqueID: 1667200283
+    locked: 0
+  - name: New Layer 4
+    uniqueID: 2364860853
+    locked: 0
+  - name: New Layer 5
+    uniqueID: 644048153
+    locked: 0
+  - name: New Layer 6
+    uniqueID: 3999746579
+    locked: 0
+  - name: New Layer 7
+    uniqueID: 3461422827
     locked: 0

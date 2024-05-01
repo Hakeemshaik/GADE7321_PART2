@@ -1,115 +1,115 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using System.Collections.Generic;
 using System.Linq;
+using System.Collections;
+using UnityEngine.EventSystems;
 
 public class GameManager : MonoBehaviour
 {
     public GameObject player1Cursor;
     public GameObject player2Cursor;
-    private int currentPlayer = 1;
+    public Canvas canvas;
     public Button[] allButtons;
-    public Text player1TextBox;
-    public Text player2TextBox;
     public Text player1IngredientsText;
     public Text player2IngredientsText;
-    private List<string> allIngredients = new List<string> { "Strawberries", "Bananas", "Blueberries", "Mango", "Pineapple", "Kale", "Tomato", "ToothPaste", "Cheese", "Spinach" };
-    private Dictionary<Button, string> buttonIngredientMap = new Dictionary<Button, string>();
-    private List<string> player1IngredientsList = new List<string>();
-    private List<string> player2IngredientsList = new List<string>();
+
     private bool player1Selected;
     private bool player2Selected;
-    private bool timerRunning;
 
     void Start()
     {
-        // Shuffle the list of ingredients
-        List<string> shuffledIngredients = allIngredients.OrderBy(x => Random.value).ToList();
-
-        // Assign ingredients to buttons
-        AssignIngredients(allButtons, shuffledIngredients);
-
-        player1Cursor.SetActive(true);
+        
+        // Ensure cursors are initially inactive
+        player1Cursor.SetActive(false);
         player2Cursor.SetActive(false);
-        StartCoroutine(PlayerTimer());
+
+        // Activate cursor for the first player
+        player1Cursor.SetActive(true);
+
+        // Set cursor positions to match initial mouse position
+        Vector3 initialMousePosition = Input.mousePosition;
+        player1Cursor.transform.position = initialMousePosition;
+        player2Cursor.transform.position = initialMousePosition;
     }
 
-    void AssignIngredients(Button[] playerButtons, List<string> ingredients)
+    void AssignIngredients()
     {
-        foreach (Button button in playerButtons)
-        {
-            // Assign an ingredient to the button
-            string ingredient = ingredients[0];
-            ingredients.RemoveAt(0);
-            buttonIngredientMap.Add(button, ingredient);
+        // Define ingredient names
+        string[] ingredientNames = { "Strawberry", "Kale", "Mango", "Banana", "Toothpaste", "Tomato", "Blueberries", "Cheese", "Pineapple", "Spinach" };
 
-            button.onClick.AddListener(delegate { OnIngredientButtonClick(button); });
-        }
-    }
-
-    IEnumerator PlayerTimer()
-    {
-        timerRunning = true;
-        yield return new WaitForSeconds(10f);
-        if (currentPlayer == 1 && !player1Selected)
+        // Assign each ingredient to its respective button
+        for (int i = 0; i < allButtons.Length; i++)
         {
-            SelectRandomIngredient(allButtons);
-        }
-        else if (currentPlayer == 2 && !player2Selected)
-        {
-            SelectRandomIngredient(allButtons);
-        }
-        timerRunning = false;
-    }
+            Button button = allButtons[i];
+            string ingredientName = ingredientNames[i];
 
-    void SelectRandomIngredient(Button[] playerButtons)
-    {
-        foreach (Button button in playerButtons)
-        {
-            if (button.interactable)
-            {
-                OnIngredientButtonClick(button);
-                break;
-            }
-        }
-    }
+            // Set button text according to ingredient
+            button.GetComponentInChildren<Text>().text = ingredientName;
 
-    void OnIngredientButtonClick(Button button)
-    {
-        string ingredientName = buttonIngredientMap[button];
-        button.interactable = false;
-
-        if (currentPlayer == 1)
-        {
-            player1Selected = true;
-            player1IngredientsList.Add(ingredientName);
-            player1IngredientsText.text = "Player 1 Ingredients:\n" + string.Join("\n", player1IngredientsList.ToArray());
-        }
-        else
-        {
-            player2Selected = true;
-            player2IngredientsList.Add(ingredientName);
-            player2IngredientsText.text = "Player 2 Ingredients:\n" + string.Join("\n", player2IngredientsList.ToArray());
-        }
-
-        currentPlayer = (currentPlayer == 1) ? 2 : 1;
-        player1Cursor.SetActive(currentPlayer == 1);
-        player2Cursor.SetActive(currentPlayer == 2);
-
-        if (!timerRunning)
-        {
-            StartCoroutine(PlayerTimer());
+            // Add listener for button click
+            button.onClick.AddListener(() => OnIngredientButtonClick(button));
         }
     }
 
     void Update()
     {
-        if (Input.GetKeyDown(KeyCode.Mouse1))
+        // Check for player input
+        if (Input.GetMouseButtonDown(0))
         {
-            currentPlayer = (currentPlayer == 1) ? 2 : 1;
-            player1Cursor.SetActive(currentPlayer == 1);
-            player2Cursor.SetActive(currentPlayer == 2);
+            // Perform raycast to detect button clicks
+            Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+            RaycastHit hit;
+
+            if (Physics.Raycast(ray, out hit))
+            {
+                // Check if the hit object is a button
+                Button button = hit.collider.GetComponent<Button>();
+                if (button != null)
+                {
+                    // Perform button click
+                    button.onClick.Invoke();
+                }
+            }
         }
+    }
+
+    void SwitchPlayerCursors()
+    {
+        // Toggle player cursors
+        player1Cursor.SetActive(!player1Cursor.activeSelf);
+        player2Cursor.SetActive(!player2Cursor.activeSelf);
+    }
+
+    public void OnIngredientButtonClick(Button button)
+    {
+        // Get ingredient name from button
+        string ingredientName = button.GetComponentInChildren<Text>().text;
+
+        // Update player ingredients text based on cursor active state
+        if (player1Cursor.activeSelf)
+        {
+            player1IngredientsText.text += ingredientName + "\n";
+            player1Selected = true;
+        }
+        else if (player2Cursor.activeSelf)
+        {
+            player2IngredientsText.text += ingredientName + "\n";
+            player2Selected = true;
+        }
+
+        // Deactivate button
+        button.interactable = false;
+
+        // Check if both players have selected ingredients
+        if (player1Selected && player2Selected)
+        {
+            // Perform actions for both players having selected ingredients
+            // For example: Switch to the next phase of the game
+            Debug.Log("Both players have selected ingredients.");
+        }
+
+        // Switch player cursors
+        SwitchPlayerCursors();
     }
 }
