@@ -12,11 +12,15 @@ public class GameResult : MonoBehaviour
 
     private string[] goodIngredients = { "Strawberry", "Mango", "Banana", "Blueberries", "Pineapple" };
     private string[] badIngredients = { "Kale", "Toothpaste", "Tomato", "Cheese", "Spinach" };
+
+    private bool blendingCompleted = false;
+
     void Start()
     {
         // Add listener for the result button click event
         resultButton.onClick.AddListener(CalculateResult);
     }
+
     public void CalculateResult()
     {
         int player1GoodCount = CountGoodIngredients(player1IngredientsText.text);
@@ -37,6 +41,9 @@ public class GameResult : MonoBehaviour
 
         // Deactivate the result button after it's clicked
         resultButton.interactable = false;
+
+        // Start the coroutine to wait for 3 seconds and then go back to the main menu
+        StartCoroutine(WaitAndGoToMainMenu());
     }
 
     private int CountGoodIngredients(string ingredientsText)
@@ -50,5 +57,14 @@ public class GameResult : MonoBehaviour
             }
         }
         return count;
+    }
+
+    IEnumerator WaitAndGoToMainMenu()
+    {
+        // Wait for 3 seconds
+        yield return new WaitForSeconds(3f);
+
+        // Load the main menu scene
+        UnityEngine.SceneManagement.SceneManager.LoadScene("Menu");
     }
 }

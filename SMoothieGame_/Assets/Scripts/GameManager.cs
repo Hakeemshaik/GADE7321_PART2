@@ -9,7 +9,6 @@ public class GameManager : MonoBehaviour
 {
     public GameObject player1Cursor;
     public GameObject player2Cursor;
-    public Canvas canvas;
     public Button[] allButtons;
     public Text player1IngredientsText;
     public Text player2IngredientsText;
@@ -17,10 +16,11 @@ public class GameManager : MonoBehaviour
     private bool player1Selected;
     private bool player2Selected;
 
+    private GameState gameState;
+
     void Start()
     {
-        
-        // Ensure cursors are initially inactive
+        InitializeGameState();
         player1Cursor.SetActive(false);
         player2Cursor.SetActive(false);
 
@@ -33,83 +33,60 @@ public class GameManager : MonoBehaviour
         player2Cursor.transform.position = initialMousePosition;
     }
 
-    void AssignIngredients()
+    void InitializeGameState()
     {
-        // Define ingredient names
+        gameState = new GameState();
+        // Initialize ingredient availability
         string[] ingredientNames = { "Strawberry", "Kale", "Mango", "Banana", "Toothpaste", "Tomato", "Blueberries", "Cheese", "Pineapple", "Spinach" };
-
-        // Assign each ingredient to its respective button
-        for (int i = 0; i < allButtons.Length; i++)
+        foreach (string ingredient in ingredientNames)
         {
-            Button button = allButtons[i];
-            string ingredientName = ingredientNames[i];
-
-            // Set button text according to ingredient
-            button.GetComponentInChildren<Text>().text = ingredientName;
-
-            // Add listener for button click
-            button.onClick.AddListener(() => OnIngredientButtonClick(button));
+            gameState.ingredientAvailability.Add(ingredient, true);
         }
     }
 
-    void Update()
+    void UpdatePlayerIngredients()
     {
-        // Check for player input
-        if (Input.GetMouseButtonDown(0))
-        {
-            // Perform raycast to detect button clicks
-            Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-            RaycastHit hit;
-
-            if (Physics.Raycast(ray, out hit))
-            {
-                // Check if the hit object is a button
-                Button button = hit.collider.GetComponent<Button>();
-                if (button != null)
-                {
-                    // Perform button click
-                    button.onClick.Invoke();
-                }
-            }
-        }
+        gameState.player1Ingredients = player1IngredientsText.text.Split('\n').ToList();
+        gameState.player2Ingredients = player2IngredientsText.text.Split('\n').ToList();
     }
 
-    void SwitchPlayerCursors()
+    void UpdateIngredientAvailability(string ingredientName, bool available)
     {
-        // Toggle player cursors
-        player1Cursor.SetActive(!player1Cursor.activeSelf);
-        player2Cursor.SetActive(!player2Cursor.activeSelf);
+        gameState.ingredientAvailability[ingredientName] = available;
     }
 
     public void OnIngredientButtonClick(Button button)
     {
-        // Get ingredient name from button
         string ingredientName = button.GetComponentInChildren<Text>().text;
 
-        // Update player ingredients text based on cursor active state
         if (player1Cursor.activeSelf)
         {
             player1IngredientsText.text += ingredientName + "\n";
             player1Selected = true;
+            UpdateIngredientAvailability(ingredientName, false);
         }
         else if (player2Cursor.activeSelf)
         {
             player2IngredientsText.text += ingredientName + "\n";
             player2Selected = true;
+            UpdateIngredientAvailability(ingredientName, false);
         }
 
-        // Deactivate button
         button.interactable = false;
 
-        // Check if both players have selected ingredients
+        UpdatePlayerIngredients();
+
         if (player1Selected && player2Selected)
         {
-            // Perform actions for both players having selected ingredients
-            // For example: Switch to the next phase of the game
             Debug.Log("Both players have selected ingredients.");
         }
 
-        // Switch player cursors
         SwitchPlayerCursors();
+    }
+
+    void SwitchPlayerCursors()
+    {
+        player1Cursor.SetActive(!player1Cursor.activeSelf);
+        player2Cursor.SetActive(!player2Cursor.activeSelf);
     }
 }
