@@ -24,10 +24,10 @@ public class GameManager : MonoBehaviour
         player1Cursor.SetActive(false);
         player2Cursor.SetActive(false);
 
-        // Activate cursor for the first player
+        
         player1Cursor.SetActive(true);
 
-        // Set cursor positions to match initial mouse position
+        
         Vector3 initialMousePosition = Input.mousePosition;
         player1Cursor.transform.position = initialMousePosition;
         player2Cursor.transform.position = initialMousePosition;
