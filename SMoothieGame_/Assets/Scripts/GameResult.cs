@@ -17,7 +17,6 @@ public class GameResult : MonoBehaviour
 
     void Start()
     {
-        // Add listener for the result button click event
         resultButton.onClick.AddListener(CalculateResult);
     }
 
@@ -39,10 +38,9 @@ public class GameResult : MonoBehaviour
             resultText.text = "It's a tie!";
         }
 
-        // Deactivate the result button after it's clicked
+        
         resultButton.interactable = false;
 
-        // Start the coroutine to wait for 3 seconds and then go back to the main menu
         StartCoroutine(WaitAndGoToMainMenu());
     }
 
@@ -61,10 +59,9 @@ public class GameResult : MonoBehaviour
 
     IEnumerator WaitAndGoToMainMenu()
     {
-        // Wait for 3 seconds
+        
         yield return new WaitForSeconds(3f);
 
-        // Load the main menu scene
         UnityEngine.SceneManagement.SceneManager.LoadScene("Menu");
     }
 }

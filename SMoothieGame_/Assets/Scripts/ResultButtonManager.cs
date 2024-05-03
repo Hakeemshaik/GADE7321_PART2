@@ -11,13 +11,11 @@ public class ResultButtonManager : MonoBehaviour
 
     void Start()
     {
-        // Disable the result button at the start
         resultButton.gameObject.SetActive(false);
     }
 
     public void IngredientSelectedForPlayer(int player)
     {
-        // Track ingredient selection for each player
         if (player == 1)
         {
             player1Selected = true;
@@ -27,10 +25,8 @@ public class ResultButtonManager : MonoBehaviour
             player2Selected = true;
         }
 
-        // Check if both players have selected ingredients
         if (player1Selected && player2Selected)
         {
-            // If all players have selected ingredients, enable the result button
             resultButton.gameObject.SetActive(true);
         }
     }
